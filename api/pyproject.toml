@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "content_manager"
+version = "0.1.0"
+description = "An API for managing and tracking a variety of new content items."
+authors = ["Ruben Gilbert <me@rubengilbert.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["all"], version = "^0.102.0"}
+tmdb-async-client = {path = "../../tmdb-async-client", develop = true}
+sqlalchemy = "^2.0.20"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+black = "^23.7.0"
+isort = "^5.12.0"
+aiosqlite = "^0.19.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
