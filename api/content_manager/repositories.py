@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Generic, List, Protocol, Type, TypeVar
+from typing import Generic, List, Protocol, Tuple, Type, TypeVar
 
-from sqlalchemy import delete, select
+from sqlalchemy import Select, delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from content_manager.entities import ContentEntity, E
+from content_manager.enums import ContentType
 from content_manager.utils import get_derived_type
 
 
@@ -44,8 +45,8 @@ class BaseRepository(ABC, Generic[E]):
 
     async def get(self) -> List[E]:
         async with self.session.begin():
-            result = await self.session.execute(select(self.entity_type))
-            return [r[0] for r in result]
+            q = select(self.entity_type)
+            return await self.query(q)
 
     async def get_by_id(self, id: int) -> E | None:
         async with self.session.begin():
@@ -58,6 +59,11 @@ class BaseRepository(ABC, Generic[E]):
     @abstractmethod
     async def remove(self, id: int) -> None:
         ...
+
+    async def query(self, query: Select[Tuple[E]]) -> List[E]:
+        async with self.session.begin():
+            result = await self.session.execute(query)
+            return [r[0] for r in result]
 
 
 R = TypeVar("R", bound=BaseRepository)
@@ -78,3 +84,18 @@ class ContentRepository(BaseRepository[ContentEntity]):
     async def remove(self, id: int) -> None:
         async with self.session.begin():
             await self.session.execute(delete(self.entity_type).where(self.entity_type.id == id))
+
+    async def get_by_source(self, src_name: str, src_id: int) -> ContentEntity | None:
+        async with self.session.begin():
+            q = (
+                select(self.entity_type)
+                .where(self.entity_type.source_name == src_name)
+                .where(self.entity_type.source_id == src_id)
+            )
+            result = await self.query(q)
+            return result[0] if result else None
+
+    async def get_by_type(self, type: ContentType) -> List[ContentEntity]:
+        async with self.session.begin():
+            q = select(self.entity_type).where(self.entity_type.type == type)
+            return await self.query(q)

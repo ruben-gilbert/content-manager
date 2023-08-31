@@ -16,7 +16,7 @@ class Error(BaseModel):
 class ContentBase(BaseModel):
     source_name: str
     source_id: int
-    source_type: ContentType
+    type: ContentType
 
 
 # TODO: Can this just be deleted?

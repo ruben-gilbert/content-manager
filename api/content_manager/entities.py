@@ -21,5 +21,5 @@ class ContentEntity(Entity):
     id: Mapped[int] = mapped_column(Identity(always=True), primary_key=True)
     source_name: Mapped[str] = mapped_column(String(50))
     source_id: Mapped[int] = mapped_column(Integer)
-    source_type: Mapped[ContentType] = mapped_column(Enum(ContentType))
+    type: Mapped[ContentType] = mapped_column(Enum(ContentType))
     last_renewed: Mapped[datetime] = mapped_column(DateTime)

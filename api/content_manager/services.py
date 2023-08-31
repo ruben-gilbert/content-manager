@@ -40,5 +40,5 @@ class BaseService(Generic[M, R]):
 
 class ContentService(BaseService[Content, ContentRepository]):
     async def get_all_by_content_type(self, content_type: ContentType) -> List[Content]:
-        # TODO: complete this + repository code
-        return []
+        entities = await self.repository.get_by_type(content_type)
+        return [self.model_type.model_validate(e) for e in entities]
