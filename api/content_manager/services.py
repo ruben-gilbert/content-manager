@@ -10,6 +10,7 @@ class Service(Protocol[R]):
     repository: R
 
 
+# TODO: Do a better job figuring out Generics vs Protocols.  Some methods are returning Unknown...
 class BaseService(Generic[M, R]):
     def __init__(self, repository: R) -> None:
         self.repository = repository
@@ -28,11 +29,11 @@ class BaseService(Generic[M, R]):
         return self.model_type.model_validate(entity)
 
     async def get_all(self) -> List[M]:
-        entities = await self.repository.get()
+        entities = await self.repository.get_all()
         return [self.model_type.model_validate(e) for e in entities]
 
     async def get_by_id(self, id: int) -> M | None:
-        e = await self.repository.get_by_id(id)
+        e = await self.repository.get(id)
         if not e:
             return None
         return self.model_type.model_validate(e)

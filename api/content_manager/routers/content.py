@@ -41,7 +41,7 @@ async def add_content(content: Content, response: Response) -> Content:
 async def get_content_by_id(id: int) -> Content:
     model = await service.get_by_id(id)
     if not model:
-        raise NotFoundException(detail=f"Content with ID {id} does not exist.")
+        raise NotFoundException(detail=f"Content with ID {id} does not exist")
     return model
 
 

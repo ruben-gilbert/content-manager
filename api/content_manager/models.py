@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime
-from typing import TypeVar
+from typing import List, TypeVar
 
 from pydantic import BaseModel
 
@@ -13,20 +15,19 @@ class Error(BaseModel):
     status_code: int
 
 
-class ContentBase(BaseModel):
-    source_name: str
-    source_id: int
-    type: ContentType
+class Source(BaseModel):
+    name: str
+    id: str
+    last_renewed: datetime
+    content_id: int
+    content: Content
 
 
-# TODO: Can this just be deleted?
-class ContentIn(ContentBase):
-    pass
-
-
-class Content(ContentBase):
+class Content(BaseModel):
     id: int | None = None
-    last_renewed: datetime | None = None
+    name: str
+    type: ContentType
+    sources: List[Source] = []
 
     class Config:
         from_attributes = True
