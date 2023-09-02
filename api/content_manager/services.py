@@ -1,38 +1,36 @@
-from typing import Generic, List, Protocol, Type
+from typing import List, Protocol, Type, TypeVar
+
+from pydantic import BaseModel
 
 from content_manager.enums import ContentType
-from content_manager.models import Content, M
-from content_manager.repositories import ContentRepository, R
-from content_manager.utils import get_derived_type
+from content_manager.models import Content
+from content_manager.repositories import BaseRepository, ContentRepository
+
+ModelType = TypeVar("ModelType", bound=BaseModel)
+RepositoryType = TypeVar("RepositoryType", bound=BaseRepository)
 
 
-class Service(Protocol[R]):
-    repository: R
+class Service(Protocol[ModelType, RepositoryType]):
+    model_type: Type[ModelType]
+    repository: RepositoryType
 
 
-# TODO: Do a better job figuring out Generics vs Protocols.  Some methods are returning Unknown...
-class BaseService(Generic[M, R]):
-    def __init__(self, repository: R) -> None:
+class BaseService(Service[ModelType, RepositoryType]):
+    def __init__(self, model_type: Type[ModelType], repository: RepositoryType) -> None:
+        self.model_type = model_type
         self.repository = repository
-        self._model_type = None
 
-    @property
-    def model_type(self) -> Type[M]:
-        if not self._model_type:
-            self._model_type = get_derived_type(self)
-        return self._model_type
-
-    async def add(self, model: M) -> M:
+    async def add(self, model: ModelType) -> ModelType:
         entity = await self.repository.add(
             self.repository.entity_type(**model.model_dump(exclude_none=True))
         )
         return self.model_type.model_validate(entity)
 
-    async def get_all(self) -> List[M]:
+    async def get_all(self) -> List[ModelType]:
         entities = await self.repository.get_all()
-        return [self.model_type.model_validate(e) for e in entities]
+        return [self.model_type.model_validate(e[0]) for e in entities]
 
-    async def get_by_id(self, id: int) -> M | None:
+    async def get_by_id(self, id: int) -> ModelType | None:
         e = await self.repository.get(id)
         if not e:
             return None
@@ -42,4 +40,4 @@ class BaseService(Generic[M, R]):
 class ContentService(BaseService[Content, ContentRepository]):
     async def get_all_by_content_type(self, content_type: ContentType) -> List[Content]:
         entities = await self.repository.get_by_type(content_type)
-        return [self.model_type.model_validate(e) for e in entities]
+        return [self.model_type.model_validate(e[0]) for e in entities]

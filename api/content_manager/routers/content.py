@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter, Response, status
 
 from content_manager.db import DbSession
+from content_manager.entities import ContentEntity
 from content_manager.enums import ContentType
 from content_manager.exceptions import NotFoundException
 from content_manager.models import Content, Error
@@ -11,8 +12,8 @@ from content_manager.services import ContentService
 
 router = APIRouter(prefix="/content", tags=["Content"])
 # TODO: Get DI working + classes rather than global variables...
-repo = ContentRepository(DbSession())
-service = ContentService(repo)
+repo = ContentRepository(ContentEntity, DbSession())
+service = ContentService(Content, repo)
 
 
 # TODO: This might end up being a common util?  How to share it?

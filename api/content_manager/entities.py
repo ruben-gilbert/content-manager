@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, TypeVar
+from typing import List
 
 from pydantic.dataclasses import dataclass
 from sqlalchemy import DateTime, Enum, ForeignKey, Identity, Integer, String
@@ -13,9 +13,6 @@ from content_manager.enums import ContentType
 
 class Entity(AsyncAttrs, DeclarativeBase):
     pass
-
-
-E = TypeVar("E", bound=Entity)
 
 
 @dataclass
