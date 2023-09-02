@@ -22,6 +22,9 @@ class Source(BaseModel):
     content_id: int
     content: Content
 
+    class Config:
+        from_attributes = True
+
 
 class Content(BaseModel):
     id: int | None = None
